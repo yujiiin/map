@@ -55,17 +55,26 @@ function initialize() {
       mapOptions);
   var markers = [];
 
-  // Try HTML5 geolocation
+  // Display current Locationn
   if(navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position) {
       var pos = new google.maps.LatLng(position.coords.latitude,
                                        position.coords.longitude);
 
-      var infowindow = new google.maps.InfoWindow({
-        map: map,
-        position: pos,
-        content: 'Location found using HTML5.'
+      var marker = new google.maps.Marker({
+	map: map,
+	position: pos,
+	animation: google.maps.Animation.DROP
       });
+
+      var infowindow = new google.maps.InfoWindow({
+        content: 'Current Location.'
+      });
+
+      marker.addListener('click', function(){
+	infowindow.open(map, marker);
+      });
+
       map.setCenter(pos);
     }, function() {
       handleNoGeolocation(true);
@@ -96,16 +105,8 @@ function initialize() {
 
     var bounds = new google.maps.LatLngBounds();
     for(var i = 0, place; place = places[i]; i++){
-      var image = {
-        url:place.icon,
-        size: new google.maps.Size(71,71),
-        origin: new google.maps.Point(0,0),
-        anchor: new google.maps.Point(17,34),
-        scaledSize: new google.maps.Size(25,25)
-      };
       var marker = new google.maps.Marker({
         map: map,
-	//icon : image,
 	title : place.name,
 	animation: google.maps.Animation.DROP,
 	position: place.geometry.location
