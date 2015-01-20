@@ -111,10 +111,20 @@ function initialize() {
 	animation: google.maps.Animation.DROP,
 	position: place.geometry.location
       });
-
+console.log(marker);
       markers.push(marker);
       bounds.extend(place.geometry.location);
       map.setZoom(8);
+
+      var infowindow = new google.maps.InfoWindow({
+        content: 'YS.'
+      });
+
+      marker.addListener('click', function(){
+        infowindow.open(map, marker);
+      });
+
+
     }
     map.fitBounds(bounds);
   });
