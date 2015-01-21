@@ -67,7 +67,7 @@ function initialize() {
       });
 
       var infowindow = new google.maps.InfoWindow({
-        content: 'Current Location.'
+	content: 'Current Location'
       });
 
       marker.addListener('click', function(){
@@ -109,6 +109,9 @@ function initialize() {
 
     //if want to show multiple results
     //for(var i = 0, place; place = places[i]; i++){
+
+
+   //Save to google map from marker
       var marker = new google.maps.Marker({
         map: map,
 	title : place.name,
@@ -122,13 +125,25 @@ function initialize() {
 	            },
 	animation: google.maps.Animation.DROP,
       });
-      //markers.push(marker);
       bounds.extend(place.geometry.location);
       map.setZoom(8);
 
+      var html = "<table><tr><td>Name:</td> <td>" + marker.title + "</td></tr>" +
+		 "<tr><td>Memo:</td> <td><input type='text' id='memo'/></td></tr>" + 
+		 "<tr><td></td><td><input type='button' value='Save & Close' onclick='saveData()' /></td></tr>";
+
       var infowindow = new google.maps.InfoWindow({
-        content: marker.title
+        //content: marker.title
+	content: html
       });
+
+      function saveDate(){
+	var name = place.name;
+	var placeId = place.place_id;
+	var lat = place.geometry.location.lat();
+	var lng = place.geometry.location.lng();
+      }
+
 
       marker.addListener('click', function(){
         infowindow.open(map, marker);
