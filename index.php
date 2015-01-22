@@ -40,18 +40,19 @@
       }
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?signed_in=true&v=3.exp&libraries=places"></script>
-
+    <script type="text/javascript" src="function.js"></script>
     <script>
 // Note: This example requires that you consent to location sharing when
 // prompted by your browser. If you see a blank space instead of the map, this
 // is probably because you have denied permission for location sharing.
 
+var infowindow;
 
 function initialize() {
   var mapOptions = {
     zoom: 6
   };
-  var  map = new google.maps.Map(document.getElementById('map-canvas'),
+  var map = new google.maps.Map(document.getElementById('map-canvas'),
       mapOptions);
   var markers = [];
 
@@ -66,7 +67,7 @@ function initialize() {
 	animation: google.maps.Animation.DROP
       });
 
-      var infowindow = new google.maps.InfoWindow({
+      infowindow = new google.maps.InfoWindow({
 	content: 'Current Location'
       });
 
@@ -127,31 +128,24 @@ function initialize() {
       });
       bounds.extend(place.geometry.location);
       map.setZoom(8);
-
-      var html = "<table><tr><td>Name:</td> <td>" + marker.title + "</td></tr>" +
-		 "<tr><td>Memo:</td> <td><input type='text' id='memo'/></td></tr>" + 
-		 "<tr><td></td><td><input type='button' value='Save & Close' onclick='saveData()' /></td></tr>";
-
-      var infowindow = new google.maps.InfoWindow({
-        //content: marker.title
-	content: html
-      });
-
-      function saveDate(){
-	var name = place.name;
-	var placeId = place.place_id;
-	var lat = place.geometry.location.lat();
-	var lng = place.geometry.location.lng();
-      }
-
-
       marker.addListener('click', function(){
         infowindow.open(map, marker);
       });
 
+   //display save button on infowindow and call saveData() when clicked
+      var html = "<table>" +
+		 "<tr><td>Name:</td> <td><input type='text' id='name' value='" + marker.title + "'/></td></tr>" + 
+		 "<tr><td>Memo:</td> <td><input type='text' id='memo'/></td></tr>" +
+		 "<tr><td>PlaceId:</td> <td><input type='text' id='placeId' value='" + place.place_id + "'/></td></tr>" + 
+		 "<tr><td>Latitude:</td> <td><input type='text' id='lat' value='" + place.geometry.location.lat() + "'/></td></tr>" + 
+		 "<tr><td>Longtitude:</td> <td><input type='text' id='lng' value='" + place.geometry.location.lng() + "'/></td></tr>" + 
+		 "<tr><td></td><td><input type='button' value='Save & Close' onclick='saveData()' /></td></tr>";
+      infowindow = new google.maps.InfoWindow({
+	content: html
+      });
     //}
     map.fitBounds(bounds);
-  });
+  }); 
 
 // Bias the SearchBox results towards places that are within the bounds of the
 // current map's viewport. 
@@ -161,27 +155,25 @@ function initialize() {
     map.setZoom(8);
   });
 
+} //the end of initialize()
+  
+function saveData(){
+  var name = escape(document.getElementById("name").value);
+  var memo = escape(document.getElementById("memo").value);
+  var placeId = escape(document.getElementById("placeId").value);
+  var lat = escape(document.getElementById("lat").value);
+  var lng = escape(document.getElementById("lng").value);
+
+  var url = "save_data.php?name=" + name + "&memo=" + memo + "&placeId=" + placeId + "$lat=" + lat + "$lng=" + lng;
+  downloadUrl(url, function(data, responseCode){
+    if(responseCode == 200 && data.length >= 1){
+      infowindow.close();
+    }
+  });
 
 }
 
 
-
-function handleNoGeolocation(errorFlag) {
-  if (errorFlag) {
-    var content = 'Error: The Geolocation service failed.';
-  } else {
-    var content = 'Error: Your browser doesn\'t support geolocation.';
-  }
-
-  var options = {
-    map: map,
-    position: new google.maps.LatLng(60, 105),
-    content: content
-  };
-
-  var infowindow = new google.maps.InfoWindow(options);
-  map.setCenter(options.position);
-}
 
 google.maps.event.addDomListener(window, 'load', initialize);
 
