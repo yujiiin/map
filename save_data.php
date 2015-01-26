@@ -16,13 +16,12 @@ try{
 var_dump($dbh);
 
 
-//Gets data from URL s
+//Gets data from URL
 $name = $_GET['name']; 
 $memo = $_GET['memo'];
 $placeId = $_GET['placeId'];
 $lat = $_GET['lat'];
 $lng = $_GET['lng'];
-
 /*
 var_dump($name);
 var_dump($memo);
