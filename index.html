@@ -14,9 +14,7 @@ function initialize() {
   var mapOptions = {
     zoom: 6
   };
-  var map = new google.maps.Map(document.getElementById('map-canvas'),
-      mapOptions);
-  var markers = [];
+  var map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
 
   // Display current Locationn
   if(navigator.geolocation) {
@@ -136,16 +134,46 @@ function saveData(){
 function loadData(){
   var url = "load_data.php";
   downloadUrl(url, function(data){
-    console.log(data);
     var jsObj = JSON.parse(data);
-    console.log(jsObj[0].name);
-    var html = "<table>" +
-               "<tr><td>Name:</td> <td>" + jsObj[0].name + "</td> <td>Longtitude:</td> <td>" + jsObj[0].lng + "</td></tr>" +
-               "<tr><td>Name:</td> <td>" + jsObj[1].name + "</td> <td>Longtitude:</td> <td>" + jsObj[1].lng + "</td></tr>";
+
+   //show data as a table
+    var html = "<table>";
+    for(i=0; i<jsObj.length;i++){
+      html = html + "<tr><td>No."+ i + "</td> <td>" + jsObj[i].name + "</td> <td>Longtitude:</td> <td>" + jsObj[i].lng + "</td><td><input type=button id='delete' value='delete' onclick='deleteData(" + jsObj[i].id + ")'></td></tr>";
+    }
     document.getElementById('place-list').innerHTML = html;
 
+   //drop markers on the map 
+    var mapOptions = {
+      zoom: 2
+    };
+    var markers = [];
+    var map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
+    for(i=0; i<jsObj.length; i++){  
+      var pos = new google.maps.LatLng(jsObj[i].lat,jsObj[i].lng);
+      markers[i] = new google.maps.Marker({
+        map: map,
+        position : pos,
+        title : jsObj[i].name,
+        animation: google.maps.Animation.DROP,
+      });
+    }
+  var tokyoPos = new google.maps.LatLng(35.7090263367,139.7319946289);
+  map.setCenter(tokyoPos);    
   });
 }
+
+function deleteData(i){
+  var url = "delete_data.php?id=" + i;
+  downloadUrl(url, function(data, responseCode){
+    if(responseCode == 200 && data.length >= 1){
+      console.log('deleted');
+    }
+  });
+
+}
+
+
 
 
 function downloadUrl(url, callback){
@@ -192,9 +220,11 @@ google.maps.event.addDomListener(window, 'load', initialize);
   <body>
 	<input id="pac-input" class="controls" type="text" placeholder="Search Box">
 	<div id="map-canvas"></div>
-	<div id="place-list">
-	    <input type="button" id="load" value="load" onclick="loadData()">
-	</div>
+	<div id="content">
+          <input type="button" id="load" value="Load places" onclick="loadData()">
+        </div>
+        <div id="place-list">
+        </div>
   </body>
 </html>
 
