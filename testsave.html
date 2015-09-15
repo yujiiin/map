@@ -16,32 +16,6 @@ function initialize() {
   };
   var map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
 
-  // Display current Locationn
-  if(navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
-      var pos = new google.maps.LatLng(position.coords.latitude,
-                                       position.coords.longitude);
-      var marker = new google.maps.Marker({
-	map: map,
-	position: pos,
-	animation: google.maps.Animation.DROP
-      });
-
-      infowindow = new google.maps.InfoWindow({
-	content: 'Current Location'
-      });
-
-      marker.addListener('click', function(){
-	infowindow.open(map, marker);
-      });
-      map.setCenter(pos);
-    }, function() {
-      handleNoGeolocation(true);
-    });
-  } else {
-    // Browser doesn't support Geolocation
-    handleNoGeolocation(false);
-  }
 
   //Search box
   var input = /** @type{HTMLInputElement} */(
@@ -60,9 +34,9 @@ function initialize() {
     if(places.length ==0){
       return;
     }
-  //  for(var i = 0, marker; marker = places[i]; i++){
-    //  marker.setMap(null)
- //   }
+    for(var i = 0, marker; marker = markers[i]; i++){
+      marker.setMap(null)
+    }
 
     var bounds = new google.maps.LatLngBounds();
     //show single result
@@ -130,51 +104,6 @@ function saveData(){
     }
   });
 }
-
-function loadData(){
-  var url = "load_data.php";
-  downloadUrl(url, function(data){
-    var jsObj = JSON.parse(data);
-
-   //show data as a table
-    var html = "<table>";
-    for(i=0; i<jsObj.length;i++){
-      html = html + "<tr><td>No."+ i + "</td> <td>" + jsObj[i].name + "</td> <td>Longtitude:</td> <td>" + jsObj[i].lng + "</td><td><input type=button id='delete' value='delete' onclick='deleteData(" + jsObj[i].id + ")'></td></tr>";
-    }
-    document.getElementById('place-list').innerHTML = html;
-
-   //drop markers on the map 
-    var mapOptions = {
-      zoom: 2
-    };
-    var markers = [];
-    var map = new google.maps.Map(document.getElementById('map-canvas'),mapOptions);
-    for(i=0; i<jsObj.length; i++){  
-      var pos = new google.maps.LatLng(jsObj[i].lat,jsObj[i].lng);
-      markers[i] = new google.maps.Marker({
-        map: map,
-        position : pos,
-        title : jsObj[i].name,
-        animation: google.maps.Animation.DROP,
-      });
-    }
-  var tokyoPos = new google.maps.LatLng(35.7090263367,139.7319946289);
-  map.setCenter(tokyoPos);    
-  });
-}
-
-function deleteData(i){
-  var url = "delete_data.php?id=" + i;
-  downloadUrl(url, function(data, responseCode){
-    if(responseCode == 200 && data.length >= 1){
-      console.log('deleted');
-    }
-  });
-
-}
-
-
-
 
 function downloadUrl(url, callback){
   var request = window.ActiveXObject ? new ActiveXObject('Microsoft.XMLHTTP') : new XMLHttpRequest;
